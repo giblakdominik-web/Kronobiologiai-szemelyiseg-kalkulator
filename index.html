@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kronobiológiai Pszichogenetikai Kalkulátor</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#094d73',
+                            900: '#0c2a3e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .print-card { border: 1px solid #ccc !important; box-shadow: none !important; color: black !important; }
+            .print-text { color: black !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased pb-12">
+
+    <!-- Header -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-50 no-print">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-cyan-500/20">
+                    Ψ
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                        Kronobiológiai Pszichogenetikai Kalkulátor
+                    </h1>
+                    <p class="text-xs text-slate-400">Dr. Tatjana I. Szmirnova & Dr. Artur V. Zsazskov táblázatai alapján</p>
+                </div>
+            </div>
+            <button onclick="window.print()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-all flex items-center space-x-2 border border-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <span>PDF Mentés / Nyomtatás</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 mt-8 space-y-8">
+
+        <!-- Input Section -->
+        <section class="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur shadow-xl no-print">
+            <h2 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Születési Adatok Megadása
+            </h2>
+            <form id="calcForm" onsubmit="calculateMatrix(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="birthDate" class="block text-xs font-medium text-slate-400 mb-2">Születési dátum</label>
+                    <input type="date" id="birthDate" required value="2000-10-18" min="1879-01-01" max="2030-12-31" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm">
+                </div>
+                <div class="md:col-span-3 flex gap-3">
+                    <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-all shadow-lg shadow-cyan-500/25 flex items-center justify-center space-x-2 text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <span>Mátrix Kiszámítása</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Summary Overview Cards -->
+        <section id="resultHeader" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Physical Card -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 print-card shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl"></div>
+                <div class="text-xs font-bold tracking-wider text-rose-400 uppercase mb-1">Fizikai Kontúr</div>
+                <div id="physCategory" class="text-xl font-bold text-slate-100 mb-1"></div>
+                <div id="physSub" class="text-xs text-rose-300/80 font-mono mb-2"></div>
+                <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                    <span>Marker (Mod 23):</span>
+                    <span id="physMarker" class="font-mono text-slate-200 font-bold"></span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div id="physBar" class="bg-rose-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Emotional Card -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 print-card shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
+                <div class="text-xs font-bold tracking-wider text-amber-400 uppercase mb-1">Érzelmi Kontúr</div>
+                <div id="emoCategory" class="text-xl font-bold text-slate-100 mb-1"></div>
+                <div id="emoSub" class="text-xs text-amber-300/80 font-mono mb-2"></div>
+                <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                    <span>Marker (Mod 28):</span>
+                    <span id="emoMarker" class="font-mono text-slate-200 font-bold"></span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div id="emoBar" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Intellectual Card -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 print-card shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl"></div>
+                <div class="text-xs font-bold tracking-wider text-cyan-400 uppercase mb-1">Intellektuális Kontúr</div>
+                <div id="intelCategory" class="text-xl font-bold text-slate-100 mb-1"></div>
+                <div id="intelSub" class="text-xs text-cyan-300/80 font-mono mb-2"></div>
+                <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                    <span>Marker (Mod 33):</span>
+                    <span id="intelMarker" class="font-mono text-slate-200 font-bold"></span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div id="intelBar" class="bg-cyan-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Area -->
+        <div id="resultContent" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Calculation Breakdown Table -->
+            <section class="lg:col-span-2 bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur print-card shadow-xl space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-200 mb-1">Számítási Mátrix Részletezése</h3>
+                    <p class="text-xs text-slate-400">Évszám adat + Hónap adat + (Hónap napjai - Születési nap)</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400 uppercase font-semibold">
+                                <th class="py-3 px-3">Összetevő</th>
+                                <th class="py-3 px-3">Fizikai (Mod 23)</th>
+                                <th class="py-3 px-3">Érzelmi (Mod 28)</th>
+                                <th class="py-3 px-3">Szellemi (Mod 33)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700/50 text-slate-300">
+                            <tr>
+                                <td class="py-3 px-3 font-medium text-slate-400">Évszám adat (<span id="calcYearLabel"></span>)</td>
+                                <td id="yAdat1" class="py-3 px-3 font-mono"></td>
+                                <td id="yAdat2" class="py-3 px-3 font-mono"></td>
+                                <td id="yAdat3" class="py-3 px-3 font-mono"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-medium text-slate-400">Hónap adat (<span id="calcMonthLabel"></span>)</td>
+                                <td id="mAdat1" class="py-3 px-3 font-mono"></td>
+                                <td id="mAdat2" class="py-3 px-3 font-mono"></td>
+                                <td id="mAdat3" class="py-3 px-3 font-mono"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-medium text-slate-400">Nap kivonási korrekció (<span id="calcDaySubLabel"></span>)</td>
+                                <td id="dDiff1" class="py-3 px-3 font-mono text-cyan-400 font-bold"></td>
+                                <td id="dDiff2" class="py-3 px-3 font-mono text-cyan-400 font-bold"></td>
+                                <td id="dDiff3" class="py-3 px-3 font-mono text-cyan-400 font-bold"></td>
+                            </tr>
+                            <tr class="bg-slate-900/50 font-bold text-slate-100">
+                                <td class="py-3 px-3">Összegzés</td>
+                                <td id="sum1" class="py-3 px-3 font-mono"></td>
+                                <td id="sum2" class="py-3 px-3 font-mono"></td>
+                                <td id="sum3" class="py-3 px-3 font-mono"></td>
+                            </tr>
+                            <tr class="bg-cyan-950/40 text-cyan-300 font-bold text-sm">
+                                <td class="py-3 px-3">Végső Moduló (Marker)</td>
+                                <td id="mod1" class="py-3 px-3 font-mono"></td>
+                                <td id="mod2" class="py-3 px-3 font-mono"></td>
+                                <td id="mod3" class="py-3 px-3 font-mono"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pt-4 border-t border-slate-700/60">
+                    <h4 class="text-sm font-semibold text-slate-200 mb-3">Részletes Minőségi Besorolás</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40">
+                            <span class="text-rose-400 font-bold block mb-1">Fizikai kontúr</span>
+                            <p id="physDesc" class="text-slate-300"></p>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40">
+                            <span class="text-amber-400 font-bold block mb-1">Érzelmi kontúr</span>
+                            <p id="emoDesc" class="text-slate-300"></p>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40">
+                            <span class="text-cyan-400 font-bold block mb-1">Intellektuális kontúr</span>
+                            <p id="intelDesc" class="text-slate-300"></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2D Canvas Chart -->
+            <section class="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 backdrop-blur print-card shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-200 mb-1">Koordináta Háló</h3>
+                    <p class="text-xs text-slate-400 mb-4">Fizikai (X tengely) vs. Érzelmi (Y tengely)</p>
+                </div>
+
+                <div class="relative w-full aspect-square flex items-center justify-center bg-slate-900/80 rounded-xl border border-slate-700 p-2">
+                    <canvas id="matrixCanvas" width="320" height="320" class="w-full h-full max-w-[320px] max-h-[320px]"></canvas>
+                </div>
+
+                <div class="mt-4 text-xs text-slate-400 flex justify-between items-center border-t border-slate-700/60 pt-3">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span> Születési Koordináta</span>
+                    <span id="coordText" class="font-mono text-slate-200 font-bold"></span>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Exact Year Table 1879 - 2030 from source images
+        const yearTable = {
+            1879: [19, 16, 32], 1880: [21, 14, 29], 1881: [1, 13, 27], 1882: [4, 12, 25], 1883: [7, 11, 23], 
+            1884: [9, 9, 20], 1885: [12, 8, 18], 1886: [15, 7, 16], 1887: [18, 6, 14], 1888: [20, 4, 11], 
+            1889: [0, 3, 9], 1890: [3, 2, 7], 1891: [6, 1, 5], 1892: [8, 27, 2], 1893: [11, 26, 0], 
+            1894: [14, 25, 31], 1895: [17, 24, 29], 1896: [19, 22, 26], 1897: [22, 21, 24], 1898: [2, 20, 22], 
+            1899: [5, 19, 20], 1900: [7, 17, 17], 1901: [10, 16, 15], 1902: [13, 15, 13], 1903: [16, 14, 11], 
+            1904: [18, 12, 8], 1905: [21, 11, 6], 1906: [1, 10, 4], 1907: [4, 9, 2], 1908: [6, 7, 32], 
+            1909: [9, 6, 30], 1910: [12, 5, 28], 1911: [15, 4, 26], 1912: [17, 2, 23], 1913: [20, 1, 21], 
+            1914: [0, 0, 19], 1915: [3, 27, 17], 1916: [5, 25, 14], 1917: [8, 24, 12], 1918: [11, 23, 10], 
+            1919: [14, 22, 8], 1920: [16, 20, 5], 1921: [19, 19, 3], 1922: [22, 18, 1], 1923: [2, 17, 32], 
+            1924: [4, 15, 29], 1925: [7, 14, 27], 1926: [10, 13, 25], 1927: [13, 12, 23], 1928: [15, 10, 20], 
+            1929: [18, 9, 18], 1930: [21, 8, 16], 1931: [1, 7, 14], 1932: [3, 5, 11], 1933: [6, 4, 9], 
+            1934: [9, 3, 7], 1935: [12, 2, 5], 1936: [14, 0, 2], 1937: [17, 27, 0], 1938: [20, 26, 31], 
+            1939: [0, 25, 29], 1940: [2, 23, 26], 1941: [5, 22, 24], 1942: [8, 21, 22], 1943: [11, 20, 20], 
+            1944: [13, 18, 17], 1945: [16, 17, 15], 1946: [19, 16, 13], 1947: [22, 15, 11], 1948: [1, 13, 8], 
+            1949: [4, 12, 6], 1950: [7, 11, 4], 1951: [10, 10, 2], 1952: [12, 8, 32], 1953: [15, 7, 30], 
+            1954: [18, 6, 28], 1955: [21, 5, 26], 1956: [0, 3, 23], 1957: [3, 2, 21], 1958: [6, 1, 19], 
+            1959: [9, 0, 17], 1960: [11, 26, 14], 1961: [14, 25, 12], 1962: [17, 24, 10], 1963: [20, 23, 8], 
+            1964: [22, 21, 5], 1965: [2, 20, 3], 1966: [5, 19, 1], 1967: [8, 18, 32], 1968: [10, 16, 29], 
+            1969: [13, 15, 27], 1970: [16, 14, 25], 1971: [19, 13, 23], 1972: [21, 11, 20], 1973: [1, 10, 18], 
+            1974: [4, 9, 16], 1975: [7, 8, 14], 1976: [9, 6, 11], 1977: [12, 5, 9], 1978: [15, 4, 7], 
+            1979: [18, 3, 5], 1980: [20, 1, 2], 1981: [0, 0, 0], 1982: [3, 27, 31], 1983: [6, 26, 29], 
+            1984: [8, 24, 26], 1985: [11, 23, 24], 1986: [14, 22, 22], 1987: [17, 21, 20], 1988: [19, 19, 17], 
+            1989: [22, 18, 15], 1990: [2, 17, 13], 1991: [5, 16, 11], 1992: [7, 14, 8], 1993: [10, 13, 6], 
+            1994: [13, 12, 4], 1995: [16, 11, 2], 1996: [18, 9, 32], 1997: [21, 8, 30], 1998: [1, 7, 28], 
+            1999: [4, 6, 26], 2000: [6, 4, 23], 2001: [9, 3, 21], 2002: [12, 2, 19], 2003: [15, 1, 17], 
+            2004: [17, 27, 14], 2005: [20, 26, 12], 2006: [0, 25, 10], 2007: [3, 24, 8], 2008: [5, 22, 5], 
+            2009: [8, 21, 3], 2010: [11, 20, 1], 2011: [14, 19, 32], 2012: [16, 17, 29], 2013: [19, 16, 27], 
+            2014: [22, 15, 25], 2015: [2, 14, 23], 2016: [4, 12, 20], 2017: [7, 11, 18], 2018: [10, 10, 16], 
+            2019: [13, 9, 14], 2020: [15, 7, 11], 2021: [18, 6, 9], 2022: [21, 5, 7], 2023: [1, 4, 5], 
+            2024: [3, 2, 2], 2025: [6, 1, 0], 2026: [9, 0, 31], 2027: [12, 27, 29], 2028: [14, 25, 26], 
+            2029: [17, 24, 24], 2030: [20, 23, 22]
+        };
+
+        // Exact Physical Markers 1–23
+        const physicalMarkers = {
+            1:  { code: "33-55", name: "Közepes-Szangvinikus" },
+            2:  { code: "55-72", name: "Szangvinikus" },
+            3:  { code: "15-65", name: "Kolerikus" },
+            4:  { code: "50-72", name: "Szangvinikus" },
+            5:  { code: "30-41", name: "Közepes-Szangvinikus" },
+            6:  { code: "75-21", name: "Flegmatikus" },
+            7:  { code: "45-72", name: "Szangvinikus" },
+            8:  { code: "60-22", name: "Flegmatikus" },
+            9:  { code: "35-28", name: "Melankolikus" },
+            10: { code: "35-49", name: "Közepes-Szangvinikus" },
+            11: { code: "95-22", name: "Flegmatikus" },
+            12: { code: "30-99", name: "Kolerikus" },
+            13: { code: "40-61", name: "Közepes-Szangvinikus" },
+            14: { code: "20-55", name: "Kolerikus" },
+            15: { code: "40-28", name: "Melankolikus" },
+            16: { code: "90-21", name: "Flegmatikus" },
+            17: { code: "50-83", name: "Szangvinikus" },
+            18: { code: "10-45", name: "Érzékeny-Kolerikus" },
+            19: { code: "99-55", name: "Flegmatikus-Szangvinikus" },
+            20: { code: "30-52", name: "Közepes-Szangvinikus" },
+            21: { code: "20-79", name: "Kolerikus" },
+            22: { code: "80-69", name: "Flegmatikus-Szangvinikus" },
+            23: { code: "25-21", name: "Melankolikus" }
+        };
+
+        // Exact Emotional Markers 1–28 (Updated from user's image reference)
+        const emotionalMarkers = {
+            1:  { code: "69-95", name: "Szenvedélyes" },
+            2:  { code: "75-27", name: "Egoisztikus-vezető" },
+            3:  { code: "31-45", name: "Empatikus" },
+            4:  { code: "62-77", name: "Szenvedélyes" },
+            5:  { code: "50-59", name: "Empatikus" },
+            6:  { code: "44-68", name: "Empatikus" },
+            7:  { code: "12-45", name: "Önfeláldozó" },
+            8:  { code: "06-23", name: "Hideg" },
+            9:  { code: "81-54", name: "Egoisztikus-vezető" },
+            10: { code: "25-77", name: "Önfeláldozó" },
+            11: { code: "18-50", name: "Önfeláldozó" },
+            12: { code: "44-59", name: "Empatikus" },
+            13: { code: "25-68", name: "Önfeláldozó" },
+            14: { code: "50-77", name: "Szenvedélyes" },
+            15: { code: "50-99", name: "Szenvedélyes" },
+            16: { code: "50-36", name: "Szentimentális" },
+            17: { code: "56-41", name: "Szentimentális" },
+            18: { code: "31-14", name: "Hideg" },
+            19: { code: "99-54", name: "Egoisztikus-vezető" },
+            20: { code: "44-32", name: "Szentimentális" },
+            21: { code: "62-41", name: "Szentimentális" },
+            22: { code: "25-18", name: "Hideg" },
+            23: { code: "69-59", name: "Egoisztikus-vezető" },
+            24: { code: "56-41", name: "Szentimentális" },
+            25: { code: "44-68", name: "Empatikus" },
+            26: { code: "37-41", name: "Empatikus" },
+            27: { code: "56-73", name: "Szenvedélyes" },
+            28: { code: "44-73", name: "Empatikus" }
+        };
+
+        // Exact Intellectual Markers 1–33
+        const intellectualMarkers = {
+            1:  { code: "64-35", name: "Produktív-művészi" },
+            2:  { code: "21-65", name: "Gondolkodó" },
+            3:  { code: "21-65", name: "Gondolkodó" },
+            4:  { code: "93-82", name: "Produktív-vegyes" },
+            5:  { code: "43-41", name: "Harmonikus-vegyes" },
+            6:  { code: "00-99", name: "Gondolkodó" },
+            7:  { code: "57-88", name: "Produktív-gondolkodó" },
+            8:  { code: "07-41", name: "Gyakorlati-gondolkodó" },
+            9:  { code: "29-35", name: "Gyakorlati-gondolkodó" },
+            10: { code: "86-35", name: "Produktív-művészi" },
+            11: { code: "29-82", name: "Gondolkodó" },
+            12: { code: "86-41", name: "Produktív-művészi" },
+            13: { code: "14-71", name: "Gondolkodó" },
+            14: { code: "50-59", name: "Harmonikus-vegyes" },
+            15: { code: "78-65", name: "Produktív-vegyes" },
+            16: { code: "93-24", name: "Produktív-művészi" },
+            17: { code: "84-71", name: "Produktív-vegyes" },
+            18: { code: "29-41", name: "Gyakorlati-gondolkodó" },
+            19: { code: "26-71", name: "Gondolkodó" },
+            20: { code: "99-82", name: "Produktív-vegyes" },
+            21: { code: "07-76", name: "Gondolkodó" },
+            22: { code: "14-35", name: "Gyakorlati-gondolkodó" },
+            23: { code: "50-65", name: "Produktív-gondolkodó" },
+            24: { code: "26-18", name: "gyakorlati-művészi" },
+            25: { code: "29-88", name: "Gondolkodó" },
+            26: { code: "93-59", name: "Produktív-művészi" },
+            27: { code: "57-82", name: "Produktív-gondolkodó" },
+            28: { code: "29-29", name: "gyakorlati-vegyes" },
+            29: { code: "29-88", name: "Gondolkodó" },
+            30: { code: "71-47", name: "Produktív-művészi" },
+            31: { code: "07-35", name: "Gyakorlati-gondolkodó" },
+            32: { code: "65-59", name: "Produktív-vegyes" },
+            33: { code: "29-82", name: "Gondolkodó" }
+        };
+
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+
+        function getMonthData(month, year) {
+            const leap = isLeapYear(year);
+            switch(month) {
+                case 1:  return { name: leap ? "Január (szökőév)" : "Január", days: 31, data: leap ? [13, 27, 5] : [12, 26, 4] };
+                case 2:  return { name: leap ? "Február (szökőév)" : "Február", days: leap ? 29 : 28, data: [7, 26, 9] };
+                case 3:  return { name: "Március", days: 31, data: [22, 23, 11] };
+                case 4:  return { name: "Április", days: 30, data: [15, 21, 14] };
+                case 5:  return { name: "Május", days: 31, data: [7, 18, 16] };
+                case 6:  return { name: "Június", days: 30, data: [0, 16, 19] };
+                case 7:  return { name: "Július", days: 31, data: [15, 13, 21] };
+                case 8:  return { name: "Augusztus", days: 31, data: [7, 10, 23] };
+                case 9:  return { name: "Szeptember", days: 30, data: [0, 8, 26] };
+                case 10: return { name: "Október", days: 31, data: [15, 5, 28] };
+                case 11: return { name: "November", days: 30, data: [8, 3, 31] };
+                case 12: return { name: "December", days: 31, data: [0, 0, 0] };
+            }
+        }
+
+        function calculateMatrix(e) {
+            if(e) e.preventDefault();
+            
+            const dateVal = document.getElementById('birthDate').value;
+            if(!dateVal) return;
+            
+            const [y, m, d] = dateVal.split('-').map(Number);
+            
+            const yData = yearTable[y] || [0, 0, 0];
+            const mObj = getMonthData(m, y);
+            
+            // Explicit Day Subtraction Rule: Total Month Days - Birth Day
+            const daySub = mObj.days - d;
+
+            const sum1 = yData[0] + mObj.data[0] + daySub;
+            const sum2 = yData[1] + mObj.data[1] + daySub;
+            const sum3 = yData[2] + mObj.data[2] + daySub;
+
+            let mod1 = sum1 % 23; if (mod1 === 0) mod1 = 23;
+            let mod2 = sum2 % 28; if (mod2 === 0) mod2 = 28;
+            let mod3 = sum3 % 33; if (mod3 === 0) mod3 = 33;
+
+            // UI Updates
+            document.getElementById('calcYearLabel').innerText = y;
+            document.getElementById('yAdat1').innerText = yData[0];
+            document.getElementById('yAdat2').innerText = yData[1];
+            document.getElementById('yAdat3').innerText = yData[2];
+
+            document.getElementById('calcMonthLabel').innerText = mObj.name;
+            document.getElementById('mAdat1').innerText = mObj.data[0];
+            document.getElementById('mAdat2').innerText = mObj.data[1];
+            document.getElementById('mAdat3').innerText = mObj.data[2];
+
+            document.getElementById('calcDaySubLabel').innerText = `${mObj.days} nap - ${d}. nap = ${daySub}`;
+            document.getElementById('dDiff1').innerText = `+${daySub}`;
+            document.getElementById('dDiff2').innerText = `+${daySub}`;
+            document.getElementById('dDiff3').innerText = `+${daySub}`;
+
+            document.getElementById('sum1').innerText = sum1;
+            document.getElementById('sum2').innerText = sum2;
+            document.getElementById('sum3').innerText = sum3;
+
+            document.getElementById('mod1').innerText = `${mod1} (Mod 23)`;
+            document.getElementById('mod2').innerText = `${mod2} (Mod 28)`;
+            document.getElementById('mod3').innerText = `${mod3} (Mod 33)`;
+
+            // Retrieve Exact Marker Qualities
+            const physObj = physicalMarkers[mod1] || { code: "-", name: "Ismeretlen" };
+            const emoObj = emotionalMarkers[mod2] || { code: "-", name: "Ismeretlen" };
+            const intelObj = intellectualMarkers[mod3] || { code: "-", name: "Ismeretlen" };
+
+            document.getElementById('physCategory').innerText = physObj.name;
+            document.getElementById('physSub').innerText = `Kód: ${physObj.code}`;
+            
+            document.getElementById('emoCategory').innerText = emoObj.name;
+            document.getElementById('emoSub').innerText = `Kód: ${emoObj.code}`;
+            
+            document.getElementById('intelCategory').innerText = intelObj.name;
+            document.getElementById('intelSub').innerText = `Kód: ${intelObj.code}`;
+
+            document.getElementById('physMarker').innerText = `${mod1} / 23`;
+            document.getElementById('emoMarker').innerText = `${mod2} / 28`;
+            document.getElementById('intelMarker').innerText = `${mod3} / 33`;
+
+            document.getElementById('physBar').style.width = `${Math.round((mod1 / 23) * 100)}%`;
+            document.getElementById('emoBar').style.width = `${Math.round((mod2 / 28) * 100)}%`;
+            document.getElementById('intelBar').style.width = `${Math.round((mod3 / 33) * 100)}%`;
+
+            document.getElementById('physDesc').innerText = `Marker #${mod1} (${physObj.code}): ${physObj.name}`;
+            document.getElementById('emoDesc').innerText = `Marker #${mod2} (${emoObj.code}): ${emoObj.name}`;
+            document.getElementById('intelDesc').innerText = `Marker #${mod3} (${intelObj.code}): ${intelObj.name}`;
+
+            document.getElementById('coordText').innerText = `X: ${mod1} | Y: ${mod2}`;
+
+            drawCanvas(mod1, mod2);
+        }
+
+        function drawCanvas(xVal, yVal) {
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+
+            for(let i = 0; i <= w; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke();
+            }
+
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px sans-serif';
+            ctx.fillText('Fizikai (23)', w - 60, h/2 - 6);
+            ctx.fillText('Érzelmi (28)', w/2 + 6, 14);
+
+            const posX = (xVal / 23) * w;
+            const posY = h - ((yVal / 28) * h);
+
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#38bdf8';
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(posX, posY, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            calculateMatrix();
+        });
+    </script>
+</body>
+</html>
